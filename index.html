@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Factura Taxi Denis - Consecutivo Auto</title>
+    <title>Factura Taxi Denis - Final</title>
     
     <style>
         :root {
@@ -247,25 +247,19 @@
             justify-content: space-between;
             width: 100%;
         }
-        /* Estilo modificado para el número editable */
         .numero-factura {
             font-size: 24px; color: var(--rojo); font-weight: bold; font-family: Arial, sans-serif;
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
         }
-        /* El campo editable del número */
         #numero-consecutivo {
-            background: rgba(255, 255, 0, 0.1); /* Fondo muy sutil para saber que es editable */
+            background: rgba(255, 255, 0, 0.1);
             padding: 0 5px;
             border-bottom: 1px dashed var(--rojo);
             min-width: 60px;
             display: inline-block;
             text-align: center;
         }
-        #numero-consecutivo:focus {
-            background: #fff;
-            outline: 2px solid var(--rojo);
-        }
+        #numero-consecutivo:focus { background: #fff; outline: 2px solid var(--rojo); }
 
         .tabla-fecha {
             border-collapse: separate; border-spacing: 2px; width: 160px;
@@ -303,51 +297,51 @@
         .link-web { display: block; text-align: center; font-size: 11px; color: #555; text-decoration: none; margin-top: 2px; font-weight: bold;}
 
 
-        /* --- BOTONES FLOTANTES --- */
+        /* --- BOTONES FLOTANTES (MODIFICADO) --- */
         .botones-container {
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%; /* Centrado vertical */
+            right: 30px; /* Pegado a la derecha */
+            transform: translateY(-50%);
             display: flex;
-            gap: 10px;
+            flex-direction: column; /* Vertical */
+            gap: 15px;
             z-index: 1000;
-            width: 90%;
-            justify-content: center;
+            width: auto;
         }
 
         .btn {
-            padding: 12px 20px;
+            padding: 15px 20px;
             border: none;
             border-radius: 50px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             text-align: center;
-            flex: 1;
-            max-width: 200px;
             color: white;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s;
+            width: 180px; /* Ancho fijo para que se vean iguales */
         }
 
+        .btn:hover { transform: scale(1.05); }
+
         .btn-imprimir { background-color: #28a745; }
+        .btn-pdf { background-color: #007bff; }
         
         /* --- ESTILOS RESPONSIVOS --- */
         @media screen and (max-width: 768px) {
             body { padding: 10px; background-color: #f0f0f0; }
-            .hoja {
-                padding: 10px;
-                min-height: auto;
-            }
+            .hoja { padding: 10px; min-height: auto; }
             .cuerpo-factura { flex-direction: column; gap: 10px; } 
             .columna-legal { display: none; }
             .legal-movil { display: block !important; text-align: center; font-size: 8px; color: #666; margin-top: 5px;}
-            
-            .contenedor-principal {
-                flex-direction: column;
-                gap: 15px;
-            }
+            .contenedor-principal { flex-direction: column; gap: 15px; }
             .panel-izquierdo { margin-top: 0; }
             .titulo-guardia { font-size: 24px; }
             .numero-factura { font-size: 20px; }
@@ -356,12 +350,22 @@
             .etiqueta-roja { width: auto; }
             .contenedor-firmas { height: 80px; } 
             .barra-roja-horizontal { font-size: 10px; height: 25px; }
-            
             .panel-derecho { order: -1; } 
             .header-logo { text-align: center; margin-bottom: 10px; }
-            
             .seccion-fecha { flex-direction: row; justify-content: space-between; margin-bottom: 10px;}
             .fila-pago { flex-wrap: wrap; }
+            
+            /* EN MOVIL LOS BOTONES VUELVEN ABAJO */
+            .botones-container {
+                top: auto;
+                bottom: 20px;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                flex-direction: row;
+                width: 90%;
+            }
+            .btn { width: auto; flex: 1; padding: 12px 10px; }
         }
 
         /* --- IMPRESIÓN --- */
@@ -379,17 +383,9 @@
             }
 
             .hoja {
-                width: 980px !important;
-                max-width: none !important;
-                transform: scale(0.5); 
-                transform-origin: top left;
-                position: absolute;
-                top: 0;
-                left: 0;
                 box-shadow: none;
                 margin: 0;
                 padding: 15px;
-                border: 1px dashed #ccc;
             }
 
             .cuerpo-factura { flex-direction: row !important; }
@@ -400,9 +396,29 @@
             .panel-derecho { order: 0 !important; }
             .panel-izquierdo { margin-top: 15px !important; }
             .footer-whatsapp { display: flex !important; page-break-inside: avoid; }
-
-            /* Ocultar el fondo sutil del numero consecutivo al imprimir */
             #numero-consecutivo { background: none !important; border: none !important; text-align: left; }
+
+            /* --- MODO IMPRESIÓN (1/4 OFICIO) --- */
+            body.modo-impresion .hoja {
+                width: 980px !important;
+                max-width: none !important;
+                transform: scale(0.5); 
+                transform-origin: top left;
+                position: absolute;
+                top: 0;
+                left: 0;
+                border: 2px dashed #000; 
+            }
+
+            /* --- MODO PDF (TAMAÑO REAL) --- */
+            body.modo-pdf .hoja {
+                width: 100% !important;
+                max-width: 980px !important;
+                transform: scale(1); 
+                position: relative;
+                margin: 0 auto;
+                border: none;
+            }
 
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
@@ -410,7 +426,7 @@
         .legal-movil { display: none; }
     </style>
 </head>
-<body>
+<body class="">
 
     <div class="hoja">
         
@@ -577,56 +593,53 @@
     </div>
 
     <div class="botones-container">
-        <button class="btn btn-imprimir" onclick="imprimirFactura()">📄 GUARDAR / ENVIAR PDF</button>
+        <button class="btn btn-imprimir" onclick="imprimirPapel()">🖨️ IMPRIMIR (1/4)</button>
+        <button class="btn btn-pdf" onclick="guardarPDF()">📄 PDF (NORMAL)</button>
     </div>
 
     <script>
-        // --- LOGICA DE FECHA AUTOMATICA ---
         const hoy = new Date();
         document.getElementById('dia').value = String(hoy.getDate()).padStart(2, '0');
         document.getElementById('mes').value = String(hoy.getMonth() + 1).padStart(2, '0');
         document.getElementById('ano').value = hoy.getFullYear();
 
-        // --- LOGICA DE CONSECUTIVO AUTOMATICO ---
         const numElement = document.getElementById('numero-consecutivo');
-        
-        // 1. Cargar numero guardado o usar 0001 por defecto
         let savedNum = localStorage.getItem('factura_consecutivo');
-        if (!savedNum) {
-            savedNum = 1;
-        } else {
-            savedNum = parseInt(savedNum);
-        }
+        if (!savedNum) savedNum = 1;
+        else savedNum = parseInt(savedNum);
         
-        // Función para formatear con ceros (ej: 1 -> 0001)
-        function formatNum(n) {
-            return n.toString().padStart(4, '0');
-        }
-        
-        // Mostrar número actual
+        function formatNum(n) { return n.toString().padStart(4, '0'); }
         numElement.innerText = formatNum(savedNum);
 
-        // 2. Guardar si el usuario lo edita manualmente
         numElement.addEventListener('blur', function() {
             let val = parseInt(this.innerText);
             if (!isNaN(val)) {
                 localStorage.setItem('factura_consecutivo', val);
-                // Re-formatear por si acaso escribió "5" que se vea "0005"
                 this.innerText = formatNum(val); 
             }
         });
 
-        // 3. Función de imprimir e incrementar
-        function imprimirFactura() {
+        // FUNCION PARA IMPRIMIR EN PAPEL (CON BORDE Y ESCALA 50%)
+        function imprimirPapel() {
+            document.body.classList.remove('modo-pdf');
+            document.body.classList.add('modo-impresion');
             window.print();
-            
-            // Incrementar para la PRÓXIMA vez
+            incrementarConsecutivo();
+        }
+
+        // FUNCION PARA PDF (SIN BORDE Y ESCALA 100%)
+        function guardarPDF() {
+            document.body.classList.remove('modo-impresion');
+            document.body.classList.add('modo-pdf');
+            window.print();
+            incrementarConsecutivo();
+        }
+
+        function incrementarConsecutivo() {
             let current = parseInt(localStorage.getItem('factura_consecutivo') || 1);
             let next = current + 1;
             localStorage.setItem('factura_consecutivo', next);
-            
-            // Opcional: Actualizar en pantalla de una vez para que vea que cambió
-            // numElement.innerText = formatNum(next);
+            // numElement.innerText = formatNum(next); // Opcional: Actualizar al instante
         }
     </script>
 
