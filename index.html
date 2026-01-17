@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Factura Taxi Denis - Final</title>
     
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
         :root {
             --rojo: #d92323;
@@ -12,6 +14,7 @@
             --radio-borde: 12px;
             --ancho-escritorio: 980px;
             --verde-wa: #25D366;
+            --naranja-email: #f39c12;
         }
 
         body {
@@ -24,7 +27,7 @@
             min-height: 100vh;
         }
 
-        /* --- CONTENEDOR PRINCIPAL (HOJA) --- */
+        /* --- CONTENEDOR PRINCIPAL --- */
         .hoja {
             background-color: white;
             width: 100%;
@@ -40,40 +43,19 @@
             transform-origin: top left;
         }
 
-        .cuerpo-factura {
-            display: flex;
-            gap: 15px;
-            flex-grow: 1;
-        }
+        .cuerpo-factura { display: flex; gap: 15px; flex-grow: 1; }
 
-        /* --- COLUMNA TEXTO LEGAL --- */
         .columna-legal {
-            width: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            width: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-
         .texto-legal {
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
-            font-size: 8px;
-            color: #666;
-            white-space: nowrap;
-            font-family: Arial, sans-serif;
+            writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8px; color: #666; white-space: nowrap; font-family: Arial, sans-serif;
         }
 
-        /* --- ESTRUCTURA INTERNA --- */
-        .contenedor-principal {
-            flex-grow: 1;
-            display: flex;
-            gap: 20px;
-            width: 100%;
-        }
+        .contenedor-principal { flex-grow: 1; display: flex; gap: 20px; width: 100%; }
 
         /* --- INPUTS --- */
-        input[type="text"] {
+        input[type="text"], input[type="email"] {
             border: none;
             border-bottom: 1px solid #000;
             font-family: "Courier New", monospace;
@@ -88,253 +70,58 @@
         }
         input:focus { outline: none; background-color: #fffacd; }
 
-        /* --- TIPOGRAFÍA --- */
-        .etiqueta {
-            font-weight: 800;
-            font-size: 14px;
-            white-space: nowrap;
-            margin-right: 5px;
-            text-transform: uppercase;
-            color: #222;
-        }
-        
-        .etiqueta-roja {
-            color: var(--rojo);
-            font-weight: 900;
-            font-size: 14px;
-            margin-right: 5px;
-            text-transform: uppercase;
-        }
+        .etiqueta { font-weight: 800; font-size: 14px; white-space: nowrap; margin-right: 5px; text-transform: uppercase; color: #222; }
+        .etiqueta-roja { color: var(--rojo); font-weight: 900; font-size: 14px; margin-right: 5px; text-transform: uppercase; }
 
-        /* --- PANELES --- */
-        .panel-izquierdo {
-            flex: 1.6;
-            display: flex;
-            flex-direction: column;
-            border: 2px solid var(--negro);
-            border-radius: var(--radio-borde);
-            overflow: hidden;
-            margin-top: 15px; 
-        }
-
-        .contenido-form {
-            padding: 20px;
-            padding-top: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
+        .panel-izquierdo { flex: 1.6; display: flex; flex-direction: column; border: 2px solid var(--negro); border-radius: var(--radio-borde); overflow: hidden; margin-top: 15px; }
+        .contenido-form { padding: 20px; padding-top: 15px; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
         .fila { display: flex; align-items: flex-end; }
 
-        /* --- ESTILOS CHECKBOX PAGO --- */
-        .fila-pago {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 5px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .opcion-pago {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-        }
-        .opcion-pago input {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            accent-color: var(--rojo);
-        }
+        .fila-pago { display: flex; align-items: center; gap: 15px; margin-top: 5px; font-size: 12px; font-weight: bold; }
+        .opcion-pago { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .opcion-pago input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--rojo); }
 
-        /* SECCIÓN INFERIOR IZQUIERDA */
         .seccion-inferior-izq { border-top: 1px solid black; }
-
-        .fila-kilometros {
-            display: flex;
-            align-items: flex-end;
-            padding: 8px 20px;
-            border-bottom: 1px solid black;
-        }
-
+        .fila-kilometros { display: flex; align-items: flex-end; padding: 8px 20px; border-bottom: 1px solid black; }
         .contenedor-firmas { display: flex; height: 100px; }
-
-        .caja-firma {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+        .caja-firma { flex: 1; display: flex; flex-direction: column; }
         .caja-firma:first-child { border-right: 1px solid black; }
+        .espacio-firma { flex-grow: 1; background-color: white; }
+        .barra-roja-horizontal { background-color: var(--rojo); height: 30px; width: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
 
-        .espacio-firma { 
-            flex-grow: 1; 
-            background-color: white;
-        }
+        .panel-derecho { flex: 1; display: flex; flex-direction: column; margin-top: 0px; gap: 8px; }
+        .header-logo { text-align: right; margin-bottom: 5px; margin-top: -5px; }
+        .titulo-guardia { font-family: "Arial Black", "Arial", sans-serif; font-size: 28px; color: #444; margin: 0; line-height: 0.9; text-transform: uppercase; display: inline-block; }
+        .icono-carro { font-size: 32px; margin-right: 5px; }
 
-        .barra-roja-horizontal {
-            background-color: var(--rojo);
-            height: 30px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* --- PANEL DERECHO --- */
-        .panel-derecho {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            margin-top: 0px; 
-            gap: 8px; 
-        }
-
-        /* --- HEADER LOGO --- */
-        .header-logo {
-            text-align: right;
-            margin-bottom: 5px;
-            margin-top: -5px; 
-        }
-
-        .titulo-guardia {
-            font-family: "Arial Black", "Arial", sans-serif;
-            font-size: 28px;
-            color: #444;
-            margin: 0;
-            line-height: 0.9;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-        .icono-carro { 
-            font-size: 32px; 
-            margin-right: 5px; 
-        }
-
-        .caja-bordeada {
-            border: 2px solid var(--negro);
-            border-radius: var(--radio-borde);
-            padding: 8px 12px;
-        }
-
-        .caja-datos-fiscales {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            font-size: 12px;
-        }
+        .caja-bordeada { border: 2px solid var(--negro); border-radius: var(--radio-borde); padding: 8px 12px; }
+        .caja-datos-fiscales { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
         .fila-dato { display: flex; align-items: baseline; flex-wrap: wrap; }
         .dato-valor { font-weight: bold; color: #000; margin-left: 5px; }
-        .dato-especialidad {
-            font-size: 10px; line-height: 1.1; color: #000; font-weight: bold; margin-top: 2px;
-        }
-
+        .dato-especialidad { font-size: 10px; line-height: 1.1; color: #000; font-weight: bold; margin-top: 2px; }
         .caja-chofer { display: flex; flex-direction: column; gap: 5px; }
         .caja-placa { padding: 10px 12px; }
 
-        /* --- SECCION FECHA --- */
-        .seccion-fecha { 
-            margin-bottom: 10px; 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .numero-factura {
-            font-size: 24px; color: var(--rojo); font-weight: bold; font-family: Arial, sans-serif;
-            display: flex; align-items: center;
-        }
-        #numero-consecutivo {
-            background: rgba(255, 255, 0, 0.1);
-            padding: 0 5px;
-            border-bottom: 1px dashed var(--rojo);
-            min-width: 60px;
-            display: inline-block;
-            text-align: center;
-        }
-        #numero-consecutivo:focus { background: #fff; outline: 2px solid var(--rojo); }
-
-        .tabla-fecha {
-            border-collapse: separate; border-spacing: 2px; width: 160px;
-        }
+        .seccion-fecha { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .numero-factura { font-size: 24px; color: var(--rojo); font-weight: bold; font-family: Arial, sans-serif; display: flex; align-items: center; }
+        #numero-consecutivo { background: rgba(255, 255, 0, 0.1); padding: 0 5px; border-bottom: 1px dashed var(--rojo); min-width: 60px; display: inline-block; text-align: center; }
+        .tabla-fecha { border-collapse: separate; border-spacing: 2px; width: 160px; }
         .header-fecha { background-color: var(--rojo); color: white; font-weight: bold; font-size: 10px; text-align: center; padding: 2px 0; }
         .input-fecha { border: 1px solid black; height: 22px; text-align: center; border-radius: 0;}
 
-        /* --- FOOTER CENTRAL (WHATSAPP) --- */
-        .footer-whatsapp {
-            text-align: center;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed #ccc;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .info-wa-footer { 
-            font-weight: 900; 
-            font-size: 24px; 
-            color: black; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-        }
-        .icono-wa-svg {
-            width: 28px;
-            height: 28px;
-            fill: var(--verde-wa);
-            margin-right: 8px;
-        }
+        .footer-whatsapp { text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .info-wa-footer { font-weight: 900; font-size: 24px; color: black; display: flex; align-items: center; justify-content: center; }
+        .icono-wa-svg { width: 28px; height: 28px; fill: var(--verde-wa); margin-right: 8px; }
         .link-web { display: block; text-align: center; font-size: 11px; color: #555; text-decoration: none; margin-top: 2px; font-weight: bold;}
 
-
-        /* --- BOTONES FLOTANTES (MODIFICADO) --- */
-        .botones-container {
-            position: fixed;
-            top: 50%; /* Centrado vertical */
-            right: 30px; /* Pegado a la derecha */
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column; /* Vertical */
-            gap: 15px;
-            z-index: 1000;
-            width: auto;
-        }
-
-        .btn {
-            padding: 15px 20px;
-            border: none;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            text-align: center;
-            color: white;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.2s;
-            width: 180px; /* Ancho fijo para que se vean iguales */
-        }
-
+        /* BOTONES FLOTANTES */
+        .botones-container { position: fixed; top: 50%; right: 30px; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 1000; width: auto; }
+        .btn { padding: 15px 20px; border: none; border-radius: 50px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center; color: white; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s; width: 200px; }
         .btn:hover { transform: scale(1.05); }
-
         .btn-imprimir { background-color: #28a745; }
         .btn-pdf { background-color: #007bff; }
-        
-        /* --- ESTILOS RESPONSIVOS --- */
+        .btn-email { background-color: var(--naranja-email); }
+
         @media screen and (max-width: 768px) {
             body { padding: 10px; background-color: #f0f0f0; }
             .hoja { padding: 10px; min-height: auto; }
@@ -355,39 +142,14 @@
             .seccion-fecha { flex-direction: row; justify-content: space-between; margin-bottom: 10px;}
             .fila-pago { flex-wrap: wrap; }
             
-            /* EN MOVIL LOS BOTONES VUELVEN ABAJO */
-            .botones-container {
-                top: auto;
-                bottom: 20px;
-                right: auto;
-                left: 50%;
-                transform: translateX(-50%);
-                flex-direction: row;
-                width: 90%;
-            }
-            .btn { width: auto; flex: 1; padding: 12px 10px; }
+            .botones-container { top: auto; bottom: 20px; right: auto; left: 50%; transform: translateX(-50%); flex-direction: column; width: 90%; }
+            .btn { width: 100%; padding: 12px 10px; }
         }
 
-        /* --- IMPRESIÓN --- */
         @media print {
-            @page { 
-                size: auto;
-                margin: 0.5cm; 
-            }
-            
-            body { 
-                background: none; 
-                padding: 0; 
-                margin: 0; 
-                display: block; 
-            }
-
-            .hoja {
-                box-shadow: none;
-                margin: 0;
-                padding: 15px;
-            }
-
+            @page { size: auto; margin: 0.5cm; }
+            body { background: none; padding: 0; margin: 0; display: block; }
+            .hoja { box-shadow: none; margin: 0; padding: 15px; }
             .cuerpo-factura { flex-direction: row !important; }
             .contenedor-principal { flex-direction: row !important; }
             .columna-legal { display: flex !important; }
@@ -397,39 +159,20 @@
             .panel-izquierdo { margin-top: 15px !important; }
             .footer-whatsapp { display: flex !important; page-break-inside: avoid; }
             #numero-consecutivo { background: none !important; border: none !important; text-align: left; }
+            
+            /* Ocultar el input de email del cliente al imprimir */
+            .fila-email-input { display: none !important; }
 
-            /* --- MODO IMPRESIÓN (1/4 OFICIO) --- */
-            body.modo-impresion .hoja {
-                width: 980px !important;
-                max-width: none !important;
-                transform: scale(0.5); 
-                transform-origin: top left;
-                position: absolute;
-                top: 0;
-                left: 0;
-                border: 2px dashed #000; 
-            }
-
-            /* --- MODO PDF (TAMAÑO REAL) --- */
-            body.modo-pdf .hoja {
-                width: 100% !important;
-                max-width: 980px !important;
-                transform: scale(1); 
-                position: relative;
-                margin: 0 auto;
-                border: none;
-            }
-
+            body.modo-impresion .hoja { width: 980px !important; max-width: none !important; transform: scale(0.5); transform-origin: top left; position: absolute; top: 0; left: 0; border: 2px dashed #000; }
+            body.modo-pdf .hoja { width: 100% !important; max-width: 980px !important; transform: scale(1); position: relative; margin: 0 auto; border: none; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
-        
         .legal-movil { display: none; }
     </style>
 </head>
 <body class="">
 
     <div class="hoja">
-        
         <div class="cuerpo-factura">
             <div class="columna-legal">
                 <div class="texto-legal">Creado por DSM Security</div>
@@ -438,7 +181,6 @@
             <div class="contenedor-principal">
                 
                 <div class="panel-izquierdo">
-                    
                     <div class="contenido-form">
                         
                         <div class="seccion-fecha">
@@ -446,11 +188,7 @@
                                 Nº <span id="numero-consecutivo" contenteditable="true">0001</span>
                             </div>
                             <table class="tabla-fecha">
-                                <tr>
-                                    <td class="header-fecha">DÍA</td>
-                                    <td class="header-fecha">MES</td>
-                                    <td class="header-fecha">AÑO</td>
-                                </tr>
+                                <tr><td class="header-fecha">DÍA</td><td class="header-fecha">MES</td><td class="header-fecha">AÑO</td></tr>
                                 <tr>
                                     <td class="input-fecha"><input type="text" id="dia"></td>
                                     <td class="input-fecha"><input type="text" id="mes"></td>
@@ -461,16 +199,15 @@
 
                         <div class="fila">
                             <span class="etiqueta">Lugar Salida:</span>
-                            <input type="text">
+                            <input type="text" id="lugar-salida">
                         </div>
                         <div class="fila">
                             <span class="etiqueta">Lugar Llegada:</span>
-                            <input type="text">
+                            <input type="text" id="lugar-llegada">
                         </div>
-                        
                         <div class="fila">
                             <span class="etiqueta">Hora:</span>
-                            <input type="text">
+                            <input type="text" id="hora-viaje">
                         </div>
                         
                         <div style="height: 5px;"></div>
@@ -478,21 +215,15 @@
                         <div class="fila">
                             <span class="etiqueta-roja">La suma de:</span>
                             <span style="font-weight: bold; font-size: 18px; margin-right: 5px;">₡</span>
-                            <input type="text" style="border-bottom: 2px solid var(--rojo);">
+                            <input type="text" id="monto-viaje" style="border-bottom: 2px solid var(--rojo);">
                         </div>
                         <div style="font-size: 9px; text-align: center; margin-top: -5px; margin-bottom: 5px;">(Colones)</div>
 
                         <div class="fila-pago">
                             <span class="etiqueta-roja" style="font-size: 12px;">PAGO:</span>
-                            <label class="opcion-pago">
-                                <input type="checkbox" name="pago" value="efectivo"> Efectivo
-                            </label>
-                            <label class="opcion-pago">
-                                <input type="checkbox" name="pago" value="sinpe"> Sinpe
-                            </label>
-                            <label class="opcion-pago">
-                                <input type="checkbox" name="pago" value="transferencia"> Transferencia
-                            </label>
+                            <label class="opcion-pago"><input type="checkbox" name="pago" value="efectivo"> Efectivo</label>
+                            <label class="opcion-pago"><input type="checkbox" name="pago" value="sinpe"> Sinpe</label>
+                            <label class="opcion-pago"><input type="checkbox" name="pago" value="transferencia"> Transferencia</label>
                         </div>
 
                         <div class="fila">
@@ -559,10 +290,14 @@
                         </div>
                     </div>
 
+                    <div class="fila fila-email-input" style="margin-top: 5px; margin-bottom: 5px;">
+                        <input type="email" id="email-cliente" placeholder="✉️ Correo del Cliente (para envío auto)" style="text-align: center; border: 1px solid #ccc; background: #fff;">
+                    </div>
+
                     <div class="caja-bordeada caja-chofer">
                         <div class="fila">
                             <span class="etiqueta-roja">Chofer:</span>
-                            <input type="text" value="Denis Valverde Alpizar">
+                            <input type="text" id="nombre-chofer" value="Denis Valverde Alpizar">
                         </div>
                         <div class="fila">
                             <span class="etiqueta-roja">Clave #:</span>
@@ -595,31 +330,40 @@
     <div class="botones-container">
         <button class="btn btn-imprimir" onclick="imprimirPapel()">🖨️ IMPRIMIR (1/4)</button>
         <button class="btn btn-pdf" onclick="guardarPDF()">📄 PDF (NORMAL)</button>
+        <button class="btn btn-email" onclick="enviarCorreoSilencioso()">📧 ENVIAR AHORA</button>
     </div>
 
     <script>
+        // === TUS CREDENCIALES ===
+        const PUBLIC_KEY = "6bEsZHVFwQcU8IOhK";
+        const SERVICE_ID = "service_fzht37h";
+        const TEMPLATE_ID = "template_hg4zubl";
+
+        // Inicializar EmailJS
+        (function() {
+            emailjs.init(PUBLIC_KEY);
+        })();
+
+        // --- Resto del código ---
         const hoy = new Date();
         document.getElementById('dia').value = String(hoy.getDate()).padStart(2, '0');
         document.getElementById('mes').value = String(hoy.getMonth() + 1).padStart(2, '0');
         document.getElementById('ano').value = hoy.getFullYear();
 
         const numElement = document.getElementById('numero-consecutivo');
-        let savedNum = localStorage.getItem('factura_consecutivo');
-        if (!savedNum) savedNum = 1;
-        else savedNum = parseInt(savedNum);
-        
-        function formatNum(n) { return n.toString().padStart(4, '0'); }
-        numElement.innerText = formatNum(savedNum);
+        let savedNum = localStorage.getItem('factura_consecutivo') || 1;
+        numElement.innerText = savedNum.toString().padStart(4, '0');
 
         numElement.addEventListener('blur', function() {
             let val = parseInt(this.innerText);
-            if (!isNaN(val)) {
-                localStorage.setItem('factura_consecutivo', val);
-                this.innerText = formatNum(val); 
-            }
+            if (!isNaN(val)) localStorage.setItem('factura_consecutivo', val);
         });
 
-        // FUNCION PARA IMPRIMIR EN PAPEL (CON BORDE Y ESCALA 50%)
+        function incrementarConsecutivo() {
+            let next = parseInt(localStorage.getItem('factura_consecutivo') || 1) + 1;
+            localStorage.setItem('factura_consecutivo', next);
+        }
+
         function imprimirPapel() {
             document.body.classList.remove('modo-pdf');
             document.body.classList.add('modo-impresion');
@@ -627,7 +371,6 @@
             incrementarConsecutivo();
         }
 
-        // FUNCION PARA PDF (SIN BORDE Y ESCALA 100%)
         function guardarPDF() {
             document.body.classList.remove('modo-impresion');
             document.body.classList.add('modo-pdf');
@@ -635,11 +378,41 @@
             incrementarConsecutivo();
         }
 
-        function incrementarConsecutivo() {
-            let current = parseInt(localStorage.getItem('factura_consecutivo') || 1);
-            let next = current + 1;
-            localStorage.setItem('factura_consecutivo', next);
-            // numElement.innerText = formatNum(next); // Opcional: Actualizar al instante
+        // FUNCION PARA ENVIAR CORREO SILENCIOSO
+        function enviarCorreoSilencioso() {
+            const emailCliente = document.getElementById('email-cliente').value;
+            
+            if(!emailCliente || !emailCliente.includes('@')) {
+                alert("⚠️ Por favor escribe el correo del cliente primero.");
+                return;
+            }
+
+            const btn = document.querySelector('.btn-email');
+            btn.innerText = "⏳ Enviando...";
+            btn.disabled = true;
+
+            const templateParams = {
+                to_email: emailCliente,
+                fecha: `${document.getElementById('dia').value}/${document.getElementById('mes').value}/${document.getElementById('ano').value}`,
+                salida: document.getElementById('lugar-salida').value || "N/A",
+                llegada: document.getElementById('lugar-llegada').value || "N/A",
+                hora: document.getElementById('hora-viaje').value || "N/A",
+                monto: document.getElementById('monto-viaje').value || "0",
+                chofer: document.getElementById('nombre-chofer').value,
+                consecutivo: numElement.innerText
+            };
+
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+                .then(function() {
+                    alert("✅ Correo enviado con éxito!");
+                    btn.innerText = "📧 ENVIAR AHORA";
+                    btn.disabled = false;
+                    incrementarConsecutivo();
+                }, function(error) {
+                    alert("❌ Falló el envío: " + JSON.stringify(error));
+                    btn.innerText = "📧 ENVIAR AHORA";
+                    btn.disabled = false;
+                });
         }
     </script>
 
