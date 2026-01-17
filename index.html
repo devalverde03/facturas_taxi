@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Factura Taxi Denis - Final</title>
+    <title>Factura Taxi Denis - Consecutivo Auto</title>
     
     <style>
         :root {
@@ -247,8 +247,24 @@
             justify-content: space-between;
             width: 100%;
         }
+        /* Estilo modificado para el número editable */
         .numero-factura {
             font-size: 24px; color: var(--rojo); font-weight: bold; font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+        }
+        /* El campo editable del número */
+        #numero-consecutivo {
+            background: rgba(255, 255, 0, 0.1); /* Fondo muy sutil para saber que es editable */
+            padding: 0 5px;
+            border-bottom: 1px dashed var(--rojo);
+            min-width: 60px;
+            display: inline-block;
+            text-align: center;
+        }
+        #numero-consecutivo:focus {
+            background: #fff;
+            outline: 2px solid var(--rojo);
         }
 
         .tabla-fecha {
@@ -385,6 +401,9 @@
             .panel-izquierdo { margin-top: 15px !important; }
             .footer-whatsapp { display: flex !important; page-break-inside: avoid; }
 
+            /* Ocultar el fondo sutil del numero consecutivo al imprimir */
+            #numero-consecutivo { background: none !important; border: none !important; text-align: left; }
+
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
         
@@ -407,7 +426,9 @@
                     <div class="contenido-form">
                         
                         <div class="seccion-fecha">
-                            <div class="numero-factura">Nº 0001</div>
+                            <div class="numero-factura">
+                                Nº <span id="numero-consecutivo" contenteditable="true">0001</span>
+                            </div>
                             <table class="tabla-fecha">
                                 <tr>
                                     <td class="header-fecha">DÍA</td>
@@ -560,13 +581,52 @@
     </div>
 
     <script>
+        // --- LOGICA DE FECHA AUTOMATICA ---
         const hoy = new Date();
         document.getElementById('dia').value = String(hoy.getDate()).padStart(2, '0');
         document.getElementById('mes').value = String(hoy.getMonth() + 1).padStart(2, '0');
         document.getElementById('ano').value = hoy.getFullYear();
 
+        // --- LOGICA DE CONSECUTIVO AUTOMATICO ---
+        const numElement = document.getElementById('numero-consecutivo');
+        
+        // 1. Cargar numero guardado o usar 0001 por defecto
+        let savedNum = localStorage.getItem('factura_consecutivo');
+        if (!savedNum) {
+            savedNum = 1;
+        } else {
+            savedNum = parseInt(savedNum);
+        }
+        
+        // Función para formatear con ceros (ej: 1 -> 0001)
+        function formatNum(n) {
+            return n.toString().padStart(4, '0');
+        }
+        
+        // Mostrar número actual
+        numElement.innerText = formatNum(savedNum);
+
+        // 2. Guardar si el usuario lo edita manualmente
+        numElement.addEventListener('blur', function() {
+            let val = parseInt(this.innerText);
+            if (!isNaN(val)) {
+                localStorage.setItem('factura_consecutivo', val);
+                // Re-formatear por si acaso escribió "5" que se vea "0005"
+                this.innerText = formatNum(val); 
+            }
+        });
+
+        // 3. Función de imprimir e incrementar
         function imprimirFactura() {
             window.print();
+            
+            // Incrementar para la PRÓXIMA vez
+            let current = parseInt(localStorage.getItem('factura_consecutivo') || 1);
+            let next = current + 1;
+            localStorage.setItem('factura_consecutivo', next);
+            
+            // Opcional: Actualizar en pantalla de una vez para que vea que cambió
+            // numElement.innerText = formatNum(next);
         }
     </script>
 
