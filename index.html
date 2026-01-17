@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Factura Taxis Guardia - Escala 1/4</title>
+    
+    <style>
+        :root {
+            --rojo: #d92323;
+            --negro: #000000;
+            --radio-borde: 12px;
+            --ancho-escritorio: 980px;
+        }
+
+        body {
+            font-family: "Arial Narrow", "Helvetica Condensed", sans-serif;
+            background-color: #555;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL (HOJA) --- */
+        .hoja {
+            background-color: white;
+            width: 100%;
+            max-width: var(--ancho-escritorio);
+            min-height: 600px;
+            padding: 20px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.5);
+            display: flex;
+            gap: 15px;
+            box-sizing: border-box;
+            position: relative;
+            transform-origin: top left; /* Importante para la impresión */
+        }
+
+        /* --- COLUMNA TEXTO LEGAL --- */
+        .columna-legal {
+            width: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .texto-legal {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 8px;
+            color: #666;
+            white-space: nowrap;
+            font-family: Arial, sans-serif;
+        }
+
+        /* --- ESTRUCTURA INTERNA --- */
+        .contenedor-principal {
+            flex-grow: 1;
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* --- INPUTS --- */
+        input {
+            border: none;
+            border-bottom: 1px solid #000;
+            font-family: "Courier New", monospace;
+            font-size: 16px;
+            color: #000080;
+            font-weight: bold;
+            background: transparent;
+            width: 100%;
+            height: 24px;
+            padding-left: 5px;
+            border-radius: 0;
+        }
+        input:focus { outline: none; background-color: #fffacd; }
+
+        /* --- TIPOGRAFÍA --- */
+        .etiqueta {
+            font-weight: 800;
+            font-size: 14px;
+            white-space: nowrap;
+            margin-right: 5px;
+            text-transform: uppercase;
+            color: #222;
+        }
+        
+        .etiqueta-roja {
+            color: var(--rojo);
+            font-weight: 900;
+            font-size: 14px;
+            margin-right: 5px;
+            text-transform: uppercase;
+        }
+
+        /* --- PANELES --- */
+        .panel-izquierdo {
+            flex: 1.6;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid var(--negro);
+            border-radius: var(--radio-borde);
+            overflow: hidden;
+            margin-top: 15px; 
+        }
+
+        .contenido-form {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .fila { display: flex; align-items: flex-end; }
+
+        /* SECCIÓN INFERIOR IZQUIERDA */
+        .seccion-inferior-izq { border-top: 1px solid black; }
+
+        .fila-kilometros {
+            display: flex;
+            align-items: flex-end;
+            padding: 8px 20px;
+            border-bottom: 1px solid black;
+        }
+
+        .contenedor-firmas { display: flex; height: 100px; }
+
+        .caja-firma {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .caja-firma:first-child { border-right: 1px solid black; }
+
+        .espacio-firma { flex-grow: 1; background-color: white; }
+
+        .barra-roja-horizontal {
+            background-color: var(--rojo);
+            height: 30px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- PANEL DERECHO --- */
+        .panel-derecho {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-top: 0px; 
+            gap: 8px; 
+        }
+
+        .header-logo {
+            text-align: right;
+            margin-bottom: 2px;
+            margin-top: -5px; 
+        }
+
+        .titulo-guardia {
+            font-family: "Arial Black", "Arial", sans-serif;
+            font-size: 28px;
+            color: #444;
+            margin: 0;
+            line-height: 0.9;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+        .icono-pin { color: var(--rojo); font-size: 24px; margin-right: 5px; }
+        .info-contact { color: var(--rojo); font-weight: 800; font-size: 11px; margin-top: 4px; }
+        .info-wa { font-weight: 900; font-size: 15px; color: black; }
+        .link-web { display: block; text-align: right; font-size: 10px; color: black; text-decoration: none; margin-top: 2px; }
+
+        .caja-bordeada {
+            border: 2px solid var(--negro);
+            border-radius: var(--radio-borde);
+            padding: 8px 12px;
+        }
+
+        .caja-datos-fiscales {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+        }
+        .fila-dato { display: flex; align-items: baseline; flex-wrap: wrap; }
+        .dato-valor { font-weight: bold; color: #000; margin-left: 5px; }
+        .dato-especialidad {
+            font-size: 10px; line-height: 1.1; color: #000; font-weight: bold; margin-top: 2px;
+        }
+
+        .caja-chofer { display: flex; flex-direction: column; gap: 5px; }
+        .info-extra-chofer { font-size: 11px; font-weight: bold; color: #000; margin-bottom: 2px; }
+
+        .caja-placa { padding: 10px 12px; }
+
+        .seccion-fecha { margin-top: 2px; text-align: right; }
+        .numero-factura {
+            font-size: 28px; color: var(--rojo); font-weight: bold; font-family: Arial, sans-serif; margin-bottom: 5px;
+        }
+
+        .tabla-fecha {
+            margin-left: auto; border-collapse: separate; border-spacing: 2px; width: 100%; max-width: 180px;
+        }
+        .header-fecha { background-color: var(--rojo); color: white; font-weight: bold; font-size: 11px; text-align: center; padding: 3px 0; }
+        .input-fecha { border: 1px solid black; height: 25px; text-align: center; border-radius: 0;}
+
+        /* --- BOTONES FLOTANTES --- */
+        .botones-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+            width: 90%;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-align: center;
+            flex: 1;
+            max-width: 200px;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .btn-imprimir { background-color: #28a745; }
+        
+        /* --- ESTILOS RESPONSIVOS (MÓVIL EN PANTALLA) --- */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; background-color: #f0f0f0; }
+            .hoja {
+                padding: 10px;
+                min-height: auto;
+                flex-direction: column;
+            }
+            .columna-legal { display: none; }
+            .legal-movil { display: block !important; text-align: center; font-size: 8px; color: #666; margin-top: 10px;}
+            .contenedor-principal {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .panel-izquierdo { margin-top: 0; }
+            .titulo-guardia { font-size: 24px; }
+            .numero-factura { font-size: 24px; }
+            .fila { flex-wrap: wrap; }
+            .etiqueta { width: 100%; margin-bottom: 2px; }
+            .etiqueta-roja { width: auto; }
+            .contenedor-firmas { height: 80px; }
+            .barra-roja-horizontal { font-size: 10px; height: 25px; }
+            .panel-derecho { order: -1; }
+            .seccion-fecha { order: -1; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
+            .header-logo { text-align: center; margin-bottom: 15px; }
+            .link-web { text-align: center; }
+        }
+
+        /* --- ESTILOS DE IMPRESIÓN (LA MAGIA DE 1/4 DE OFICIO) --- */
+        @media print {
+            @page { 
+                size: auto; /* Dejar que la impresora maneje el papel (Letter/Legal) */
+                margin: 0.5cm; 
+            }
+            
+            body { 
+                background: none; 
+                padding: 0; 
+                margin: 0; 
+                display: block; 
+            }
+
+            .hoja {
+                /* Forzamos el ancho de escritorio para que mantenga el diseño original (horizontal) */
+                width: 980px !important;
+                max-width: none !important;
+                
+                /* ESCALA 50% = 1/4 de la hoja en área */
+                transform: scale(0.5); 
+                transform-origin: top left; /* Pegado a la esquina */
+                
+                position: absolute;
+                top: 0;
+                left: 0;
+                
+                /* Quitamos sombras y márgenes extra */
+                box-shadow: none;
+                margin: 0;
+                padding: 15px;
+                
+                /* Borde de corte (opcional, línea gris muy fina) */
+                border: 1px dashed #ccc;
+                
+                /* Asegurar que se vea como en PC */
+                flex-direction: row !important;
+            }
+
+            .contenedor-principal { flex-direction: row !important; }
+            .columna-legal { display: flex !important; }
+            .legal-movil { display: none !important; }
+            .botones-container { display: none; }
+            .panel-derecho { order: 0 !important; }
+            .panel-izquierdo { margin-top: 15px !important; }
+            .seccion-fecha { display: block !important; text-align: right !important; }
+            
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+        
+        .legal-movil { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="hoja">
+        <div class="columna-legal">
+            <div class="texto-legal">Creado por DSM Security</div>
+        </div>
+
+        <div class="contenedor-principal">
+            
+            <div class="panel-izquierdo">
+                <div class="contenido-form">
+                    <div class="fila">
+                        <span class="etiqueta">Lugar Salida:</span>
+                        <input type="text">
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta">Lugar Llegada:</span>
+                        <input type="text">
+                    </div>
+                    
+                    <div style="height: 10px;"></div>
+
+                    <div class="fila">
+                        <span class="etiqueta-roja">La suma de:</span>
+                        <span style="font-weight: bold; font-size: 18px; margin-right: 5px;">₡</span>
+                        <input type="text" style="border-bottom: 2px solid var(--rojo);">
+                    </div>
+                    <div style="font-size: 9px; text-align: center; margin-top: -5px; margin-bottom: 5px;">(Colones)</div>
+
+                    <div class="fila">
+                        <span class="etiqueta">Centro de Costos:</span>
+                        <input type="text">
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta">Nombre Usuario:</span>
+                        <input type="text">
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta">Nombre Empresa:</span>
+                        <input type="text">
+                    </div>
+                </div>
+
+                <div class="seccion-inferior-izq">
+                    <div class="fila-kilometros">
+                        <span class="etiqueta" style="width: auto;">Kilómetros:</span>
+                        <input type="text" style="width: 100px;">
+                    </div>
+                    
+                    <div class="contenedor-firmas">
+                        <div class="caja-firma">
+                            <div class="espacio-firma"></div>
+                            <div class="barra-roja-horizontal">FIRMA DEL CLIENTE</div>
+                        </div>
+                        <div class="caja-firma">
+                            <div class="espacio-firma"></div>
+                            <div class="barra-roja-horizontal">FIRMA DEL TAXISTA</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-derecho">
+                
+                <div class="header-logo">
+                    <div>
+                        <span class="icono-pin">🚗</span>
+                        <h1 class="titulo-guardia"> TAXI DENIS<sup style="font-size: 14px;">®</sup></h1>
+                    </div>
+                    <div class="info-contact">Tel: 8918-3000</div>
+                    <div class="info-wa">WhatsApp: 8918-3000</div>
+                    <a href="#" class="link-web">www.commingsoon.com</a>
+                </div>
+
+                <div class="caja-bordeada caja-datos-fiscales">
+                    <div class="fila-dato">
+                        <span class="etiqueta-roja" style="font-size: 11px; margin-right: 2px;">CEL:</span>
+                        <span class="dato-valor">89183000</span>
+                        <span style="margin: 0 5px; color: #ccc;">|</span>
+                        <span class="etiqueta-roja" style="font-size: 11px; margin-right: 2px;">CED:</span>
+                        <span class="dato-valor">106570318</span>
+                    </div>
+                    <div class="fila-dato">
+                        <span class="etiqueta-roja" style="font-size: 11px; margin-right: 2px;">ACT. COMERCIAL:</span>
+                        <span class="dato-valor">49222</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="etiqueta-roja" style="font-size: 11px;">ESPECIALIDAD:</span>
+                        <span class="dato-especialidad">Trasporte terrestre remunerado de personas modalidad taxi.</span>
+                    </div>
+                </div>
+
+                <div class="caja-bordeada caja-chofer">
+                    <div class="info-extra-chofer">Dennis Valverde Alpizar</div>
+                    <div class="fila">
+                        <span class="etiqueta-roja">Chofer:</span>
+                        <input type="text" value="Dennis Valverde Alpizar">
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta-roja">Clave #:</span>
+                        <input type="text" value="1000">
+                    </div>
+                </div>
+
+                <div class="caja-bordeada caja-placa">
+                    <div class="fila">
+                        <span class="etiqueta-roja">Placa #:</span>
+                        <input type="text" value="TSJ 3862">
+                    </div>
+                </div>
+
+                <div class="seccion-fecha">
+                    <div class="numero-factura">Nº 4648</div>
+                    <table class="tabla-fecha">
+                        <tr>
+                            <td class="header-fecha">DÍA</td>
+                            <td class="header-fecha">MES</td>
+                            <td class="header-fecha">AÑO</td>
+                        </tr>
+                        <tr>
+                            <td class="input-fecha"><input type="text" id="dia"></td>
+                            <td class="input-fecha"><input type="text" id="mes"></td>
+                            <td class="input-fecha"><input type="text" id="ano"></td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        
+        <div class="legal-movil">Creado por DSM Security</div>
+    </div>
+
+    <div class="botones-container">
+        <button class="btn btn-imprimir" onclick="imprimirFactura()">📄 GUARDAR / ENVIAR PDF</button>
+    </div>
+
+    <script>
+        const hoy = new Date();
+        document.getElementById('dia').value = String(hoy.getDate()).padStart(2, '0');
+        document.getElementById('mes').value = String(hoy.getMonth() + 1).padStart(2, '0');
+        document.getElementById('ano').value = hoy.getFullYear();
+
+        function imprimirFactura() {
+            window.print();
+        }
+    </script>
+
+</body>
+</html>
